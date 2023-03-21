@@ -14,7 +14,7 @@ public struct WrappingHStack<Content: View>: View {
     private let verticalAlignment: VerticalAlignment
     private let lineHeight: WrappingHStackLineHeight
     
-    init(
+    public init(
         horizontalSpacing: CGFloat? = nil,
         horizontatAlignment: HorizontalAlignment? = nil,
         verticalSpacing: CGFloat? = nil,
