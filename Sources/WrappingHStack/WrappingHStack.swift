@@ -64,7 +64,7 @@ public struct WrappingHStack<Content: View>: View {
         var rowWidth = CGFloat.zero
         for view in content {
             let viewWidth = view.size.width
-            if rowWidth + viewWidth > containerWidth {
+            if rowWidth + viewWidth + horizontalSpacing > containerWidth {
                 rows.append(buildRowFrom(views: rowViews))
                 rowViews = []
                 rowWidth = .zero
