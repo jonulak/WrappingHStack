@@ -43,7 +43,7 @@ public struct WrappingHStack<Content: View>: View {
         VStack(alignment: horizontalAlignment, spacing: verticalSpacing) {
             ForEach(rows.indices, id: \.self) { index in
                 rows[index]
-                    .frame(height: rowHeight)
+                    .frame(width: containerWidth, height: rowHeight)
             }
         }
         .frame(width: containerWidth)
