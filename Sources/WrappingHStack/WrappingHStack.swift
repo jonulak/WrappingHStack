@@ -14,9 +14,6 @@ struct WrappingHStack<Content: View>: View {
     private let verticalAlignment: VerticalAlignment
     private let lineHeight: WrappingHStackLineHeight
     
-    private let renderableViewTypes: Set<String> = ["Text", "Image"]
-//    private let spacing: CGFloat
-    
     init(
         horizontalSpacing: CGFloat? = nil,
         horizontatAlignment: HorizontalAlignment? = nil,
@@ -31,10 +28,68 @@ struct WrappingHStack<Content: View>: View {
         self.verticalAlignment = verticalAlignment ?? .top
         self.lineHeight = lineHeight ?? .variable
         self.content = content
-        print(content.count)
-//        self.spacing = spacing
     }
     
+    var body: some View {
+        GeometryReader { reader in
+            Rectangle().foregroundColor(.clear)
+                .onAppear {
+                    containerWidth = reader.size.width
+                }
+        }
+        .frame(height: 0)
+        let rows = buildRows()
+        let rowHeight = calculateRowHeightFor(rows: rows)
+        VStack(alignment: horizontalAlignment, spacing: verticalSpacing) {
+            ForEach(rows.indices, id: \.self) { index in
+                rows[index]
+                    .frame(height: rowHeight)
+            }
+        }
+        .frame(width: containerWidth)
+    }
+    
+    private func calculateRowHeightFor(rows: [AnyView]) -> CGFloat? {
+        switch lineHeight {
+        case .variable:
+            return nil
+        case .equal:
+            return rows.map({ $0.size.height }).max()
+        }
+    }
+    
+    private func buildRows() -> [AnyView] {
+        var rows = [AnyView]()
+        var rowViews = [Content]()
+        var rowWidth = CGFloat.zero
+        for view in content {
+            let viewWidth = view.size.width
+            if rowWidth + viewWidth > containerWidth {
+                rows.append(buildRowFrom(views: rowViews))
+                rowViews = []
+                rowWidth = .zero
+            }
+            rowViews.append(view)
+            rowWidth += viewWidth
+        }
+        if !rowViews.isEmpty {
+            rows.append(buildRowFrom(views: rowViews))
+        }
+        return rows
+    }
+    
+    private func buildRowFrom(views: [Content]) -> AnyView {
+        AnyView(
+            HStack(alignment: verticalAlignment, spacing: horizontalSpacing) {
+                ForEach(views.indices, id: \.self) { index in
+                    views[index]
+                }
+            }
+        )
+    }
+}
+
+extension WrappingHStack {
     init(
         horizontalSpacing: CGFloat? = nil,
         horizontatAlignment: HorizontalAlignment? = nil,
@@ -69,56 +124,6 @@ struct WrappingHStack<Content: View>: View {
             verticalAlignment: verticalAlignment,
             lineHeight: lineHeight,
             content: views.data.map(views.content)
-        )
-    }
-    
-    var body: some View {
-        GeometryReader { reader in
-            Rectangle().foregroundColor(.clear)
-                .onAppear {
-                    containerWidth = reader.size.width
-                }
-        }
-        .frame(height: 0)
-        let rows = buildRows()
-        VStack(alignment: .leading) {
-            ForEach(rows.indices, id: \.self) { index in
-                rows[index]
-            }
-        }
-        .frame(width: containerWidth)
-    }
-    
-    private func buildRows() -> [AnyView] {
-        var rows = [AnyView]()
-        var rowViews = [Content]()
-        var rowWidth = CGFloat.zero
-        for view in content {
-            let viewWidth = view.size.width
-            if rowWidth + viewWidth > containerWidth {
-                print("Row Width: \(rowWidth)")
-                print("Container Width: \(containerWidth)")
-                print("View Width: \(viewWidth)")
-                rows.append(buildRowFrom(views: rowViews))
-                rowViews = []
-                rowWidth = .zero
-            }
-            rowViews.append(view)
-            rowWidth += viewWidth
-        }
-        if !rowViews.isEmpty {
-            rows.append(buildRowFrom(views: rowViews))
-        }
-        return rows
-    }
-    
-    private func buildRowFrom(views: [Content]) -> AnyView {
-        AnyView(
-            HStack(spacing: 0) {
-                ForEach(views.indices, id: \.self) { index in
-                    views[index]
-                }
-            }
         )
     }
 }
