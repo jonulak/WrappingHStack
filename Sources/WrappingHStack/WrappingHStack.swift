@@ -26,7 +26,7 @@ public struct WrappingHStack<Content: View>: View {
         self.horizontalAlignment = horizontatAlignment ?? .leading
         self.verticalSpacing = verticalSpacing ?? 5
         self.verticalAlignment = verticalAlignment ?? .top
-        self.lineHeight = lineHeight ?? .variable
+        self.lineHeight = lineHeight ?? .equal
         self.content = content
     }
     
@@ -85,6 +85,7 @@ public struct WrappingHStack<Content: View>: View {
                     views[index]
                 }
             }
+                .frame(width: containerWidth)
         )
     }
 }
