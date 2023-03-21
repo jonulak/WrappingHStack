@@ -1,7 +1,7 @@
 import SwiftUI
 
-struct WrappingHStack<Content: View>: View {
-    enum WrappingHStackLineHeight {
+public struct WrappingHStack<Content: View>: View {
+    public enum WrappingHStackLineHeight {
         case equal
         case variable
     }
@@ -30,7 +30,7 @@ struct WrappingHStack<Content: View>: View {
         self.content = content
     }
     
-    var body: some View {
+    public var body: some View {
         GeometryReader { reader in
             Rectangle().foregroundColor(.clear)
                 .onAppear {
@@ -89,7 +89,7 @@ struct WrappingHStack<Content: View>: View {
     }
 }
 
-extension WrappingHStack {
+public extension WrappingHStack {
     init(
         horizontalSpacing: CGFloat? = nil,
         horizontatAlignment: HorizontalAlignment? = nil,
