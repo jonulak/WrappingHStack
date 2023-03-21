@@ -5,7 +5,7 @@ public struct WrappingHStack<Content: View>: View {
         case equal
         case variable
     }
-    
+
     @State var containerWidth: CGFloat = .zero
     private let content: [Content]
     private let horizontalSpacing: CGFloat
@@ -13,7 +13,19 @@ public struct WrappingHStack<Content: View>: View {
     private let horizontalAlignment: HorizontalAlignment
     private let verticalAlignment: VerticalAlignment
     private let lineHeight: WrappingHStackLineHeight
-    
+    private var frameAlignment: Alignment {
+        switch horizontalAlignment {
+        case .leading:
+            return .leading
+        case .center:
+            return .center
+        case .trailing:
+            return .trailing
+        default:
+            return .leading
+        }
+    }
+
     public init(
         horizontalSpacing: CGFloat? = nil,
         horizontatAlignment: HorizontalAlignment? = nil,
@@ -26,10 +38,10 @@ public struct WrappingHStack<Content: View>: View {
         self.horizontalAlignment = horizontatAlignment ?? .leading
         self.verticalSpacing = verticalSpacing ?? 5
         self.verticalAlignment = verticalAlignment ?? .top
-        self.lineHeight = lineHeight ?? .equal
+        self.lineHeight = lineHeight ?? .variable
         self.content = content
     }
-    
+
     public var body: some View {
         GeometryReader { reader in
             Rectangle().foregroundColor(.clear)
@@ -43,12 +55,11 @@ public struct WrappingHStack<Content: View>: View {
         VStack(alignment: horizontalAlignment, spacing: verticalSpacing) {
             ForEach(rows.indices, id: \.self) { index in
                 rows[index]
-                    .frame(width: containerWidth, height: rowHeight)
             }
         }
-        .frame(width: containerWidth)
+        .frame(idealWidth: containerWidth, alignment: frameAlignment)
     }
-    
+
     private func calculateRowHeightFor(rows: [AnyView]) -> CGFloat? {
         switch lineHeight {
         case .variable:
@@ -57,7 +68,7 @@ public struct WrappingHStack<Content: View>: View {
             return rows.map({ $0.size.height }).max()
         }
     }
-    
+
     private func buildRows() -> [AnyView] {
         var rows = [AnyView]()
         var rowViews = [Content]()
@@ -77,7 +88,7 @@ public struct WrappingHStack<Content: View>: View {
         }
         return rows
     }
-    
+
     private func buildRowFrom(views: [Content]) -> AnyView {
         AnyView(
             HStack(alignment: verticalAlignment, spacing: horizontalSpacing) {
@@ -85,7 +96,6 @@ public struct WrappingHStack<Content: View>: View {
                     views[index]
                 }
             }
-                .frame(width: containerWidth)
         )
     }
 }
@@ -108,7 +118,7 @@ public extension WrappingHStack {
             content: content()
         )
     }
-    
+
     init<Data, ID: Hashable>(
         horizontalSpacing: CGFloat? = nil,
         horizontatAlignment: HorizontalAlignment? = nil,
